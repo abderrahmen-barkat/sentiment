@@ -1,0 +1,22 @@
+import numpy as np 
+import pandas as pd 
+import os
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+with open('/kaggle/input/customer-review-dataset/redmi6.csv', 'r', encoding='iso-8859-1') as f:
+    comment = pd.read_csv(f)
+comment= comment.drop(['Useful','Category','Date','Customer name','Review Title'],axis=1)
+comment['Rating'] = comment['Rating'].str.replace('out of 5 stars', '')
+comment['Comments'] = comment['Comments'].str.lower()
+comment['Comments'] = comment['Comments'].apply(lambda x : re.sub('[^\w\s]', '', x))
+stop_words = stopwords.words('english')
+tokenizer = nltk.word_tokenize
+tokens = [word.lower() for document in comment['Comments'] for word in tokenizer(document) if word.lower() not in stop_words] 
+def _sentiment_(sentiment_text):
+    text = ' '.join(sentiment_text)
+    score = SentimentIntensityAnalyzer().polarity_scores(text)
+    return score
+score = _sentiment_(tokens)
+print(score)
